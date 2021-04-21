@@ -1,4 +1,4 @@
-package kafka
+package main
 
 import (
 	"github.com/gin-gonic/gin"
@@ -17,7 +17,7 @@ var (
 	Brokers     = "123.123.123.123:4567,124.124.124.124:4568"
 )
 
-func RunExample() {
+func main() {
 	logrus.Info("bravo")
 
 	// 1.) kafka producer usage example
