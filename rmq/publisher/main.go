@@ -4,7 +4,6 @@ import (
 	"github.com/gobackpack/rmq"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"sync"
 )
 
 func main() {
@@ -37,8 +36,6 @@ func main() {
 
 	go publisher.HandleResetSignalPublisher(done)
 
-	wg := sync.WaitGroup{}
-
 	configB := rmq.NewConfig()
 	configB.Exchange = "test_exchange_b"
 	configB.Queue = "test_queue_b"
@@ -60,38 +57,21 @@ func main() {
 	}
 
 	for i := 0; i < 10; i++ {
-		go func() {
-			wg.Add(1)
-			defer wg.Done()
+		// publish to default config exchange/queue
+		if err := publisher.Publish([]byte(uuid.New().String())); err != nil {
+			logrus.Error(err)
+		}
 
-			// publish to default config exchange/queue
-			if err := publisher.Publish([]byte(uuid.New().String())); err != nil {
-				logrus.Error(err)
-			}
-		}()
+		// publish to configB exchange/queue
+		if err := publisher.PublishWithConfig(configB, []byte(uuid.New().String())); err != nil {
+			logrus.Error(err)
+		}
 
-		go func() {
-			wg.Add(1)
-			defer wg.Done()
-
-			// publish to configB exchange/queue
-			if err := publisher.PublishWithConfig(configB, []byte(uuid.New().String())); err != nil {
-				logrus.Error(err)
-			}
-		}()
-
-		go func() {
-			wg.Add(1)
-			defer wg.Done()
-
-			// publish to configC exchange/queue
-			if err := publisher.PublishWithConfig(configC, []byte(uuid.New().String())); err != nil {
-				logrus.Error(err)
-			}
-		}()
+		// publish to configC exchange/queue
+		if err := publisher.PublishWithConfig(configC, []byte(uuid.New().String())); err != nil {
+			logrus.Error(err)
+		}
 	}
-
-	wg.Wait()
 
 	close(done)
 
