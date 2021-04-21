@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "github.com/semirm-dev/kafka-go/protofiles";
+
+message Payload {
+  string error = 1;
+  Content content = 2;
+}
+
+message Content {
+  string type = 1;
+  string serviceId = 2;
+  int32 timestamp = 3;
+  Attribute attr = 4;
+}
+
+message Attribute {
+   bool status = 1;
+   int32 consumption = 2;
+}
