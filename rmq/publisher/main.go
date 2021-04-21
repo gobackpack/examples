@@ -4,6 +4,7 @@ import (
 	"github.com/gobackpack/rmq"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"sync"
 )
 
 func main() {
@@ -56,22 +57,42 @@ func main() {
 		return
 	}
 
+	wg := sync.WaitGroup{}
+
 	for i := 0; i < 10; i++ {
-		// publish to default config exchange/queue
-		if err := publisher.Publish([]byte(uuid.New().String())); err != nil {
-			logrus.Error(err)
-		}
+		// this is not atomic operation
+		// we need to keep it out of these goroutines
+		wg.Add(3)
 
-		// publish to configB exchange/queue
-		if err := publisher.PublishWithConfig(configB, []byte(uuid.New().String())); err != nil {
-			logrus.Error(err)
-		}
+		go func() {
+			defer wg.Done()
 
-		// publish to configC exchange/queue
-		if err := publisher.PublishWithConfig(configC, []byte(uuid.New().String())); err != nil {
-			logrus.Error(err)
-		}
+			// publish to default config exchange/queue
+			if err := publisher.Publish([]byte(uuid.New().String())); err != nil {
+				logrus.Error(err)
+			}
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			// publish to configB exchange/queue
+			if err := publisher.PublishWithConfig(configB, []byte(uuid.New().String())); err != nil {
+				logrus.Error(err)
+			}
+		}()
+
+		go func() {
+			defer wg.Done()
+
+			// publish to configC exchange/queue
+			if err := publisher.PublishWithConfig(configC, []byte(uuid.New().String())); err != nil {
+				logrus.Error(err)
+			}
+		}()
 	}
+
+	wg.Wait()
 
 	close(done)
 
