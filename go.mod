@@ -1,4 +1,4 @@
-module gobackpack/examples
+module github.com/gobackpack/examples
 
 go 1.16
 
