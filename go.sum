@@ -19,6 +19,8 @@ github.com/gobackpack/rmq v0.0.0-20210421075736-ac44fa8030bb h1:oK/dO41oXrKxqBwd
 github.com/gobackpack/rmq v0.0.0-20210421075736-ac44fa8030bb/go.mod h1:tmRRgu3UO7zYxILr3NvI8JB99E2Tj9TDzWW89w/0V6A=
 github.com/gobackpack/websocket v0.0.0-20210423104758-8b2502cd4732 h1:pXZHDKq88gW41GYkt3yG2A6PaWdhdY6TKahcvxPyt9E=
 github.com/gobackpack/websocket v0.0.0-20210423104758-8b2502cd4732/go.mod h1:tQ1et3loABuge58gnsalYeCaoSg95A6N8OF2Dh0P1gw=
+github.com/gobackpack/websocket v0.0.0-20210423105232-7bf9a39bc301 h1:rDVepNXGhTk2kC3I3aEshNfi017kRuLhwJDwHFb2fro=
+github.com/gobackpack/websocket v0.0.0-20210423105232-7bf9a39bc301/go.mod h1:tQ1et3loABuge58gnsalYeCaoSg95A6N8OF2Dh0P1gw=
 github.com/golang/protobuf v1.3.3/go.mod h1:vzj43D7+SQXF/4pzW/hwtAqwc6iTitCiVSaWz5lYuqw=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.2 h1:ROPKBNFfQgOUMifHyP+KYbvpjbdoFNs+aK7DXlji0Tw=
