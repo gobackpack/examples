@@ -9,11 +9,11 @@ import (
 
 func main() {
 	token := &jwtLib.Token{
-		Secret: []byte("testkey"),
+		Secret: []byte("testkey"), // if we change this during validation, token will be invalid!
 	}
 
 	if err := token.Generate(&jwtLib.Claims{
-		Expiration: time.Hour * 24,
+		Expiration: time.Second * 30,
 		Fields: map[string]interface{}{
 			"username": "semir",
 			"email":    "semir@mail.com",
