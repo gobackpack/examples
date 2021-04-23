@@ -59,7 +59,7 @@ func main() {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 2000; i++ {
 		// this is not atomic operation
 		// we need to keep it out of these goroutines
 		wg.Add(3)
