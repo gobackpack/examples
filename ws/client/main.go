@@ -19,7 +19,7 @@ func main() {
 	<-ready
 
 	// ready to send messages to websocket channel
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 50000; i++ {
 		if err := client.SendText([]byte(fmt.Sprint("message: ", i))); err != nil {
 			logrus.Fatal("failed to send message: ", err)
 		}

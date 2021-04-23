@@ -17,8 +17,8 @@ github.com/go-playground/validator/v10 v10.4.1 h1:pH2c5ADXtd66mxoE0Zm9SUhxE20r7a
 github.com/go-playground/validator/v10 v10.4.1/go.mod h1:nlOn6nFhuKACm19sB/8EGNn9GlaMV7XkbRSipzJ0Ii4=
 github.com/gobackpack/rmq v0.0.0-20210421075736-ac44fa8030bb h1:oK/dO41oXrKxqBwdLjpAgLON1vpHgXlUpCOvF4wBjoQ=
 github.com/gobackpack/rmq v0.0.0-20210421075736-ac44fa8030bb/go.mod h1:tmRRgu3UO7zYxILr3NvI8JB99E2Tj9TDzWW89w/0V6A=
-github.com/gobackpack/websocket v0.0.0-20210421082358-eec6a8b4e522 h1:NouwzB4f/Dqxvl0pB8Ts+JB4KBnWv4fk54mjSXI01dw=
-github.com/gobackpack/websocket v0.0.0-20210421082358-eec6a8b4e522/go.mod h1:tQ1et3loABuge58gnsalYeCaoSg95A6N8OF2Dh0P1gw=
+github.com/gobackpack/websocket v0.0.0-20210423104758-8b2502cd4732 h1:pXZHDKq88gW41GYkt3yG2A6PaWdhdY6TKahcvxPyt9E=
+github.com/gobackpack/websocket v0.0.0-20210423104758-8b2502cd4732/go.mod h1:tQ1et3loABuge58gnsalYeCaoSg95A6N8OF2Dh0P1gw=
 github.com/golang/protobuf v1.3.3/go.mod h1:vzj43D7+SQXF/4pzW/hwtAqwc6iTitCiVSaWz5lYuqw=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/golang/protobuf v1.5.2 h1:ROPKBNFfQgOUMifHyP+KYbvpjbdoFNs+aK7DXlji0Tw=
@@ -64,7 +64,6 @@ golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn
 golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/sys v0.0.0-20190412213103-97732733099d/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20191026070338-33540a1f6037/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20200116001909-b77594299b42 h1:vEOn+mP2zCOVzKckCZy6YsCtDblrpj/w7B9nxGNELpg=
 golang.org/x/sys v0.0.0-20200116001909-b77594299b42/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210423082822-04245dca01da h1:b3NXsE2LusjYGGjL5bxEVZZORm/YEFFrWFjR8eFrw/c=
 golang.org/x/sys v0.0.0-20210423082822-04245dca01da/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
