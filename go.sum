@@ -3,6 +3,8 @@ github.com/confluentinc/confluent-kafka-go v1.6.1/go.mod h1:u2zNLny2xq+5rWeTQjFH
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
+github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.7.1 h1:qC89GU3p8TvKWMAVhEpmpB2CIb1hnqt2UdKZaP93mS8=
@@ -15,10 +17,10 @@ github.com/go-playground/universal-translator v0.17.0 h1:icxd5fm+REJzpZx7ZfpaD87
 github.com/go-playground/universal-translator v0.17.0/go.mod h1:UkSxE5sNxxRwHyU+Scu5vgOQjsIJAF8j9muTVoKLVtA=
 github.com/go-playground/validator/v10 v10.4.1 h1:pH2c5ADXtd66mxoE0Zm9SUhxE20r7aM3F26W0hOn+GE=
 github.com/go-playground/validator/v10 v10.4.1/go.mod h1:nlOn6nFhuKACm19sB/8EGNn9GlaMV7XkbRSipzJ0Ii4=
+github.com/gobackpack/jwt v0.0.0-20210421074448-5b90c58b3e39 h1:58EKPd+0s3T0i94k4VNYnIGosQIoRSSQxxib9S/wLsQ=
+github.com/gobackpack/jwt v0.0.0-20210421074448-5b90c58b3e39/go.mod h1:PhXirvD7smB49Vz5BZx7hLjK7Y9ludGz1YYHtKyyxW0=
 github.com/gobackpack/rmq v0.0.0-20210421075736-ac44fa8030bb h1:oK/dO41oXrKxqBwdLjpAgLON1vpHgXlUpCOvF4wBjoQ=
 github.com/gobackpack/rmq v0.0.0-20210421075736-ac44fa8030bb/go.mod h1:tmRRgu3UO7zYxILr3NvI8JB99E2Tj9TDzWW89w/0V6A=
-github.com/gobackpack/websocket v0.0.0-20210423104758-8b2502cd4732 h1:pXZHDKq88gW41GYkt3yG2A6PaWdhdY6TKahcvxPyt9E=
-github.com/gobackpack/websocket v0.0.0-20210423104758-8b2502cd4732/go.mod h1:tQ1et3loABuge58gnsalYeCaoSg95A6N8OF2Dh0P1gw=
 github.com/gobackpack/websocket v0.0.0-20210423105232-7bf9a39bc301 h1:rDVepNXGhTk2kC3I3aEshNfi017kRuLhwJDwHFb2fro=
 github.com/gobackpack/websocket v0.0.0-20210423105232-7bf9a39bc301/go.mod h1:tQ1et3loABuge58gnsalYeCaoSg95A6N8OF2Dh0P1gw=
 github.com/golang/protobuf v1.3.3/go.mod h1:vzj43D7+SQXF/4pzW/hwtAqwc6iTitCiVSaWz5lYuqw=
