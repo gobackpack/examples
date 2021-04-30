@@ -10,6 +10,7 @@ require (
 	github.com/gobackpack/websocket v0.0.0-20210423105232-7bf9a39bc301
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.2.0
+	github.com/gorilla/websocket v1.4.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v1.0.0
 	golang.org/x/sys v0.0.0-20210423082822-04245dca01da // indirect
