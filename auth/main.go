@@ -40,12 +40,8 @@ func main() {
 			return
 		}
 
-		user := &auth.User{
-			Email:    req.Email,
-			Password: req.Password,
-		}
-
-		if err := auth.RegisterUser(user); err != nil {
+		user, err := auth.RegisterUser(req.Email, req.Password)
+		if err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("registration failed: %v", err))
 			return
 		}
@@ -60,13 +56,19 @@ func main() {
 			return
 		}
 
-		token, err := auth.Authenticate(req.Email, req.Password)
+		user := auth.GetUser(req.Email)
+		if user == nil {
+			ctx.JSON(http.StatusBadRequest, "there is no user registered with email: "+req.Email)
+			return
+		}
+
+		tokens, err := auth.Authenticate(user, req.Password)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("login failed: %v", err))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, token)
+		ctx.JSON(http.StatusOK, tokens)
 	})
 
 	protected := router.Group("api/users")
