@@ -64,7 +64,12 @@ func RegisterUser(email, password string) (*User, error) {
 	return user, nil
 }
 
-func Authenticate(user *User, password string) (map[string]string, error) {
+func Authenticate(email, password string) (map[string]string, error) {
+	user := GetUser(email)
+	if user == nil {
+		return nil, errors.New("user email not registered: " + email)
+	}
+
 	if valid := validateCredentials(user, password); valid {
 		// access_token
 		accessToken := &jwt.Token{
