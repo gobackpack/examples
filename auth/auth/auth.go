@@ -61,7 +61,7 @@ func Authenticate(email, password string) (string, error) {
 		tokenStr, err := token.Generate(map[string]interface{}{
 			"id":    user.Id,
 			"email": user.Email,
-			"exp":   time.Now().Add(time.Second * 15).Unix(),
+			"exp":   jwt.TokenExpiry(time.Second * 15),
 		})
 		if err != nil {
 			log.Fatalln("failed to generate jwt: ", err)
