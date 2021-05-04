@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"github.com/gobackpack/jwt"
+	"log"
 	"sort"
 	"time"
 )
@@ -57,17 +58,16 @@ func Authenticate(email, password string) (string, error) {
 	}
 
 	if valid := validateCredentials(user, password); valid {
-		if err := token.Generate(&jwt.Claims{
-			Expiration: time.Second * 30,
-			Fields: map[string]interface{}{
-				"id":    user.Id,
-				"email": user.Email,
-			},
-		}); err != nil {
-			return "", err
+		tokenStr, err := token.Generate(map[string]interface{}{
+			"id":    user.Id,
+			"email": user.Email,
+			"exp":   time.Now().Add(time.Second * 15).Unix(),
+		})
+		if err != nil {
+			log.Fatalln("failed to generate jwt: ", err)
 		}
 
-		return token.Content, nil
+		return tokenStr, nil
 	}
 
 	return "", errors.New("invalid credentials")
