@@ -5,7 +5,6 @@ import (
 	"github.com/gobackpack/crypto"
 	"github.com/gobackpack/jwt"
 	"github.com/sirupsen/logrus"
-	"log"
 	"sort"
 	"time"
 )
@@ -77,7 +76,7 @@ func Authenticate(user *User, password string) (map[string]string, error) {
 			"exp":   jwt.TokenExpiry(time.Second * 15),
 		})
 		if err != nil {
-			log.Fatalln("failed to generate jwt: ", err)
+			logrus.Fatal("failed to generate jwt: ", err)
 		}
 
 		// refresh_token
@@ -89,7 +88,7 @@ func Authenticate(user *User, password string) (map[string]string, error) {
 			"exp": jwt.TokenExpiry(time.Minute * 1),
 		})
 		if err != nil {
-			log.Fatalln("failed to generate jwt: ", err)
+			logrus.Fatal("failed to generate jwt: ", err)
 		}
 
 		tokens := map[string]string{
