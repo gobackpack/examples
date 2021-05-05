@@ -69,6 +69,14 @@ func main() {
 	protected := router.Group("api/users")
 	protected.Use(auth.RequiredAuthentication())
 
+	protected.POST("/logout", func(ctx *gin.Context) {
+		// TODO: Provide implementation
+	})
+
+	protected.POST("/token/refresh", func(ctx *gin.Context) {
+		// TODO: Provide implementation
+	})
+
 	protected.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, auth.Users)
 	})

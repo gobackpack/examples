@@ -99,6 +99,7 @@ func (authSvc *Service) Authenticate(email, password string) (map[string]string,
 			return nil, err
 		}
 
+		// TODO: Provide implementation
 		//if err := authSvc.TokenStore.NewOrAppend(&Item{
 		//	Key:        fmt.Sprint(user.Id),
 		//	Value:      tokenDetails.ClientId,
@@ -116,6 +117,15 @@ func (authSvc *Service) Authenticate(email, password string) (map[string]string,
 	}
 
 	return nil, errors.New("invalid credentials")
+}
+
+func (authSvc *Service) RefreshToken(refreshToken string) {
+	// TODO: Checklist
+	// - check if refresh_token is valid
+	// - get user_id client_id from refresh_token
+	// - remove client_id from cache store for user_id
+	// - create new access_token and refresh_token
+	// - store client_id in cache store for user_id
 }
 
 func createTokens(user *User) (*TokenDetails, error) {
