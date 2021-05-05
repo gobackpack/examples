@@ -65,34 +65,9 @@ func Authenticate(email, password string) (map[string]string, error) {
 	}
 
 	if valid := validateCredentials(user, password); valid {
-		// access_token
-		accessToken := &jwt.Token{
-			Secret: AccessTokenSecret,
-		}
-		accessTokenStr, err := accessToken.Generate(map[string]interface{}{
-			"sub":   user.Id,
-			"email": user.Email,
-			"exp":   jwt.TokenExpiry(time.Second * 15),
-		})
+		tokens, err := createTokens(user)
 		if err != nil {
-			logrus.Fatal("failed to generate jwt: ", err)
-		}
-
-		// refresh_token
-		refreshToken := &jwt.Token{
-			Secret: RefreshTokenSecret,
-		}
-		refreshTokenTokenStr, err := refreshToken.Generate(map[string]interface{}{
-			"sub": user.Id,
-			"exp": jwt.TokenExpiry(time.Minute * 1),
-		})
-		if err != nil {
-			logrus.Fatal("failed to generate jwt: ", err)
-		}
-
-		tokens := map[string]string{
-			"access_token":  accessTokenStr,
-			"refresh_token": refreshTokenTokenStr,
+			return nil, err
 		}
 
 		return tokens, nil
@@ -101,7 +76,7 @@ func Authenticate(email, password string) (map[string]string, error) {
 	return nil, errors.New("invalid credentials")
 }
 
-func IsAuthenticated(tokenStr string) bool {
+func IsTokenValid(tokenStr string) bool {
 	token := &jwt.Token{
 		Secret: AccessTokenSecret,
 	}
@@ -129,6 +104,38 @@ func SaveUser(user *User) {
 	user.Id = Users[0].Id + 1
 
 	Users = append(Users, user)
+}
+
+func createTokens(user *User) (map[string]string, error) {
+	// access_token
+	accessToken := &jwt.Token{
+		Secret: AccessTokenSecret,
+	}
+	accessTokenStr, err := accessToken.Generate(map[string]interface{}{
+		"sub":   user.Id,
+		"email": user.Email,
+		"exp":   jwt.TokenExpiry(time.Second * 15),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// refresh_token
+	refreshToken := &jwt.Token{
+		Secret: RefreshTokenSecret,
+	}
+	refreshTokenTokenStr, err := refreshToken.Generate(map[string]interface{}{
+		"sub": user.Id,
+		"exp": jwt.TokenExpiry(time.Minute * 1),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return map[string]string{
+		"access_token":  accessTokenStr,
+		"refresh_token": refreshTokenTokenStr,
+	}, nil
 }
 
 func validateCredentials(user *User, password string) bool {

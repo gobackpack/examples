@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -66,33 +65,13 @@ func main() {
 	})
 
 	protected := router.Group("api/users")
-	protected.Use(authRequired())
+	protected.Use(auth.RequiredAuthentication())
 
 	protected.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, auth.Users)
 	})
 
 	httpServe(router, "", "8080")
-}
-
-func authRequired() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		authHeader := strings.Split(ctx.GetHeader("Authorization"), " ")
-		if len(authHeader) != 2 {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		schema, token := authHeader[0], authHeader[1]
-		if schema != "Bearer" {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-
-		if isAuthenticated := auth.IsAuthenticated(token); !isAuthenticated {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
-		}
-	}
 }
 
 func httpServe(router *gin.Engine, host, port string) {
