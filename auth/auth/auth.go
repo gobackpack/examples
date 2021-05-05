@@ -36,7 +36,7 @@ type User struct {
 }
 
 func RegisterUser(email, password string) (*User, error) {
-	existing := GetUser(email)
+	existing := getUser(email)
 	if existing != nil {
 		return nil, errors.New("user email is already registered: " + email)
 	}
@@ -53,13 +53,13 @@ func RegisterUser(email, password string) (*User, error) {
 		Password: argon.Hashed,
 	}
 
-	SaveUser(user)
+	saveUser(user)
 
 	return user, nil
 }
 
 func Authenticate(email, password string) (map[string]string, error) {
-	user := GetUser(email)
+	user := getUser(email)
 	if user == nil {
 		return nil, errors.New("user email not registered: " + email)
 	}
@@ -74,36 +74,6 @@ func Authenticate(email, password string) (map[string]string, error) {
 	}
 
 	return nil, errors.New("invalid credentials")
-}
-
-func IsTokenValid(tokenStr string) bool {
-	token := &jwt.Token{
-		Secret: AccessTokenSecret,
-	}
-
-	_, valid := token.ValidateAndExtract(tokenStr)
-
-	return valid
-}
-
-func GetUser(email string) *User {
-	for _, u := range Users {
-		if u.Email == email {
-			return u
-		}
-	}
-
-	return nil
-}
-
-func SaveUser(user *User) {
-	sort.Slice(Users, func(i, j int) bool {
-		return Users[i].Id > Users[j].Id
-	})
-
-	user.Id = Users[0].Id + 1
-
-	Users = append(Users, user)
 }
 
 func createTokens(user *User) (map[string]string, error) {
@@ -138,6 +108,16 @@ func createTokens(user *User) (map[string]string, error) {
 	}, nil
 }
 
+func isTokenValid(tokenStr string) bool {
+	token := &jwt.Token{
+		Secret: AccessTokenSecret,
+	}
+
+	_, valid := token.ValidateAndExtract(tokenStr)
+
+	return valid
+}
+
 func validateCredentials(user *User, password string) bool {
 	argon := crypto.NewArgon2()
 
@@ -145,4 +125,26 @@ func validateCredentials(user *User, password string) bool {
 	argon.Plain = password
 
 	return argon.Validate()
+}
+
+// TODO: Provide implementation
+func getUser(email string) *User {
+	for _, u := range Users {
+		if u.Email == email {
+			return u
+		}
+	}
+
+	return nil
+}
+
+// TODO: Provide implementation
+func saveUser(user *User) {
+	sort.Slice(Users, func(i, j int) bool {
+		return Users[i].Id > Users[j].Id
+	})
+
+	user.Id = Users[0].Id + 1
+
+	Users = append(Users, user)
 }
