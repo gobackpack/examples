@@ -41,15 +41,6 @@ func RegisterUser(email, password string) (*User, error) {
 		return nil, errors.New("user email is already registered: " + email)
 	}
 
-	sort.Slice(Users, func(i, j int) bool {
-		return Users[i].Id > Users[j].Id
-	})
-
-	user := &User{
-		Id:    Users[0].Id + 1,
-		Email: email,
-	}
-
 	argon := crypto.NewArgon2()
 	argon.Plain = password
 
@@ -57,9 +48,12 @@ func RegisterUser(email, password string) (*User, error) {
 		logrus.Fatal("argon failed to hash Plain: ", err)
 	}
 
-	user.Password = argon.Hashed
+	user := &User{
+		Email:    email,
+		Password: argon.Hashed,
+	}
 
-	Users = append(Users, user)
+	SaveUser(user)
 
 	return user, nil
 }
@@ -125,6 +119,16 @@ func GetUser(email string) *User {
 	}
 
 	return nil
+}
+
+func SaveUser(user *User) {
+	sort.Slice(Users, func(i, j int) bool {
+		return Users[i].Id > Users[j].Id
+	})
+
+	user.Id = Users[0].Id + 1
+
+	Users = append(Users, user)
 }
 
 func validateCredentials(user *User, password string) bool {
