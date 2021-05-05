@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -20,10 +21,21 @@ func RequiredAuthentication() gin.HandlerFunc {
 			return
 		}
 
-		if !isTokenValid(token) {
+		claims, valid := extractToken(token)
+		if claims == nil || !valid {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+
+		userId := claims["sub"]
+		clientId := claims["client_id"]
+		// TODO: check if clientId for userId exists in cache
+		if userId == nil || clientId == nil {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		logrus.Infof("userId -> %v, clientId -> %v ", userId, clientId)
 
 		ctx.Next()
 	}

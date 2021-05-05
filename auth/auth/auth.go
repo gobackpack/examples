@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gobackpack/crypto"
 	"github.com/gobackpack/jwt"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"sort"
 	"time"
@@ -12,6 +13,8 @@ import (
 var (
 	AccessTokenSecret  = []byte("secret-access-123")
 	RefreshTokenSecret = []byte("secret-refresh-123")
+	AccessTokenExpiry  = time.Minute * 15
+	RefreshTokenExpiry = time.Hour * 24 * 7
 )
 
 var Users = []*User{
@@ -29,13 +32,39 @@ var Users = []*User{
 	},
 }
 
+type Service struct {
+	TokenStore
+}
+
+type TokenDetails struct {
+	ClientId     string
+	AccessToken  string
+	RefreshToken string
+}
+
+type UserTokenStore struct {
+	Device string
+}
+
+type TokenStore interface {
+	NewOrAppend(*Item) error
+	Get(string) []byte
+	Delete(string) error
+}
+
+type Item struct {
+	Key        string
+	Value      interface{}
+	Expiration time.Duration
+}
+
 type User struct {
 	Id       uint
 	Password string `json:"-"`
 	Email    string
 }
 
-func RegisterUser(email, password string) (*User, error) {
+func (authSvc *Service) RegisterUser(email, password string) (*User, error) {
 	existing := getUser(email)
 	if existing != nil {
 		return nil, errors.New("user email is already registered: " + email)
@@ -58,16 +87,29 @@ func RegisterUser(email, password string) (*User, error) {
 	return user, nil
 }
 
-func Authenticate(email, password string) (map[string]string, error) {
+func (authSvc *Service) Authenticate(email, password string) (map[string]string, error) {
 	user := getUser(email)
 	if user == nil {
 		return nil, errors.New("user email not registered: " + email)
 	}
 
 	if valid := validateCredentials(user, password); valid {
-		tokens, err := createTokens(user)
+		tokenDetails, err := createTokens(user)
 		if err != nil {
 			return nil, err
+		}
+
+		//if err := authSvc.TokenStore.NewOrAppend(&Item{
+		//	Key:        fmt.Sprint(user.Id),
+		//	Value:      tokenDetails.ClientId,
+		//	Expiration: AccessTokenExpiry,
+		//}); err != nil {
+		//	return nil, err
+		//}
+
+		tokens := map[string]string{
+			"access_token":  tokenDetails.AccessToken,
+			"refresh_token": tokenDetails.RefreshToken,
 		}
 
 		return tokens, nil
@@ -76,15 +118,18 @@ func Authenticate(email, password string) (map[string]string, error) {
 	return nil, errors.New("invalid credentials")
 }
 
-func createTokens(user *User) (map[string]string, error) {
+func createTokens(user *User) (*TokenDetails, error) {
+	clientId := uuid.New().String()
+
 	// access_token
 	accessToken := &jwt.Token{
 		Secret: AccessTokenSecret,
 	}
 	accessTokenStr, err := accessToken.Generate(map[string]interface{}{
-		"sub":   user.Id,
-		"email": user.Email,
-		"exp":   jwt.TokenExpiry(time.Second * 15),
+		"sub":       user.Id,
+		"email":     user.Email,
+		"client_id": clientId,
+		"exp":       jwt.TokenExpiry(AccessTokenExpiry),
 	})
 	if err != nil {
 		return nil, err
@@ -95,27 +140,27 @@ func createTokens(user *User) (map[string]string, error) {
 		Secret: RefreshTokenSecret,
 	}
 	refreshTokenTokenStr, err := refreshToken.Generate(map[string]interface{}{
-		"sub": user.Id,
-		"exp": jwt.TokenExpiry(time.Minute * 1),
+		"sub":       user.Id,
+		"client_id": clientId,
+		"exp":       jwt.TokenExpiry(RefreshTokenExpiry),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return map[string]string{
-		"access_token":  accessTokenStr,
-		"refresh_token": refreshTokenTokenStr,
+	return &TokenDetails{
+		ClientId:     clientId,
+		AccessToken:  accessTokenStr,
+		RefreshToken: refreshTokenTokenStr,
 	}, nil
 }
 
-func isTokenValid(tokenStr string) bool {
+func extractToken(tokenStr string) (map[string]interface{}, bool) {
 	token := &jwt.Token{
 		Secret: AccessTokenSecret,
 	}
 
-	_, valid := token.ValidateAndExtract(tokenStr)
-
-	return valid
+	return token.ValidateAndExtract(tokenStr)
 }
 
 func validateCredentials(user *User, password string) bool {

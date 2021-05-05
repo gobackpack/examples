@@ -30,6 +30,8 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
+	authSvc := &auth.Service{}
+
 	public := router.Group("/api")
 
 	public.POST("register", func(ctx *gin.Context) {
@@ -39,7 +41,7 @@ func main() {
 			return
 		}
 
-		user, err := auth.RegisterUser(req.Email, req.Password)
+		user, err := authSvc.RegisterUser(req.Email, req.Password)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("registration failed: %v", err))
 			return
@@ -55,7 +57,7 @@ func main() {
 			return
 		}
 
-		tokens, err := auth.Authenticate(req.Email, req.Password)
+		tokens, err := authSvc.Authenticate(req.Email, req.Password)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("login failed: %v", err))
 			return
