@@ -22,6 +22,9 @@ func RequiredAuthentication() gin.HandlerFunc {
 
 		if !isTokenValid(token) {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
+
+		ctx.Next()
 	}
 }
