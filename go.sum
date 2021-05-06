@@ -17,6 +17,8 @@ github.com/go-playground/universal-translator v0.17.0 h1:icxd5fm+REJzpZx7ZfpaD87
 github.com/go-playground/universal-translator v0.17.0/go.mod h1:UkSxE5sNxxRwHyU+Scu5vgOQjsIJAF8j9muTVoKLVtA=
 github.com/go-playground/validator/v10 v10.4.1 h1:pH2c5ADXtd66mxoE0Zm9SUhxE20r7aM3F26W0hOn+GE=
 github.com/go-playground/validator/v10 v10.4.1/go.mod h1:nlOn6nFhuKACm19sB/8EGNn9GlaMV7XkbRSipzJ0Ii4=
+github.com/go-redis/redis v6.15.9+incompatible h1:K0pv1D7EQUjfyoMql+r/jZqCLizCGKFlFgcHWWmHQjg=
+github.com/go-redis/redis v6.15.9+incompatible/go.mod h1:NAIEuMOZ/fxfXJIrKDQDz8wamY7mA7PouImQ2Jvg6kA=
 github.com/gobackpack/crypto v0.0.0-20210421074048-dfb4d7783a84 h1:CJtn9GPEETBjf/iekJNp2O2IUG1R7qvNvpPTheUKNfs=
 github.com/gobackpack/crypto v0.0.0-20210421074048-dfb4d7783a84/go.mod h1:OiIDtSCFXxf+vhhrUjbyypt+RTvZ4bHFuyqu7eZ4YuA=
 github.com/gobackpack/jwt v0.0.0-20210504190320-e98bb52c0a98 h1:FNpEyOWVCQ1Tee2peG2eeFN6fZlRSt+1d/T12//JLr0=

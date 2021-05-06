@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"github.com/gobackpack/crypto"
+	"github.com/gobackpack/examples/auth/auth/cache"
 	"github.com/gobackpack/jwt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -33,29 +34,22 @@ var Users = []*User{
 }
 
 type Service struct {
-	TokenStore
+	Cache
 }
 
 type TokenDetails struct {
-	ClientId     string
-	AccessToken  string
-	RefreshToken string
+	AccessToken        string
+	AccessTokenUuid    string
+	AccessTokenExpiry  time.Duration
+	RefreshToken       string
+	RefreshTokenUuid   string
+	RefreshTokenExpiry time.Duration
 }
 
-type UserTokenStore struct {
-	Device string
-}
-
-type TokenStore interface {
-	NewOrAppend(*Item) error
-	Get(string) []byte
-	Delete(string) error
-}
-
-type Item struct {
-	Key        string
-	Value      interface{}
-	Expiration time.Duration
+type Cache interface {
+	Store(items ...*cache.Item) error
+	Get(keys ...string) ([]byte, error)
+	Delete(keys ...string) error
 }
 
 type User struct {
@@ -99,14 +93,18 @@ func (authSvc *Service) Authenticate(email, password string) (map[string]string,
 			return nil, err
 		}
 
-		// TODO: Provide implementation
-		//if err := authSvc.TokenStore.NewOrAppend(&Item{
-		//	Key:        fmt.Sprint(user.Id),
-		//	Value:      tokenDetails.ClientId,
-		//	Expiration: AccessTokenExpiry,
-		//}); err != nil {
-		//	return nil, err
-		//}
+		if err := authSvc.Cache.Store(
+			&cache.Item{
+				Key:        tokenDetails.AccessTokenUuid,
+				Value:      user.Id,
+				Expiration: tokenDetails.AccessTokenExpiry,
+			}, &cache.Item{
+				Key:        tokenDetails.RefreshTokenUuid,
+				Value:      user.Id,
+				Expiration: tokenDetails.RefreshTokenExpiry,
+			}); err != nil {
+			return nil, err
+		}
 
 		tokens := map[string]string{
 			"access_token":  tokenDetails.AccessToken,
@@ -129,17 +127,16 @@ func (authSvc *Service) RefreshToken(refreshToken string) {
 }
 
 func createTokens(user *User) (*TokenDetails, error) {
-	clientId := uuid.New().String()
-
+	accessTokenUuid := uuid.New().String()
 	// access_token
 	accessToken := &jwt.Token{
 		Secret: AccessTokenSecret,
 	}
 	accessTokenStr, err := accessToken.Generate(map[string]interface{}{
-		"sub":       user.Id,
-		"email":     user.Email,
-		"client_id": clientId,
-		"exp":       jwt.TokenExpiry(AccessTokenExpiry),
+		"sub":   user.Id,
+		"email": user.Email,
+		"uuid":  accessTokenUuid,
+		"exp":   jwt.TokenExpiry(AccessTokenExpiry),
 	})
 	if err != nil {
 		return nil, err
@@ -149,19 +146,23 @@ func createTokens(user *User) (*TokenDetails, error) {
 	refreshToken := &jwt.Token{
 		Secret: RefreshTokenSecret,
 	}
+	refreshTokenUuid := uuid.New().String()
 	refreshTokenTokenStr, err := refreshToken.Generate(map[string]interface{}{
-		"sub":       user.Id,
-		"client_id": clientId,
-		"exp":       jwt.TokenExpiry(RefreshTokenExpiry),
+		"sub":  user.Id,
+		"uuid": refreshTokenUuid,
+		"exp":  jwt.TokenExpiry(RefreshTokenExpiry),
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &TokenDetails{
-		ClientId:     clientId,
-		AccessToken:  accessTokenStr,
-		RefreshToken: refreshTokenTokenStr,
+		AccessToken:        accessTokenStr,
+		AccessTokenUuid:    accessTokenUuid,
+		AccessTokenExpiry:  AccessTokenExpiry,
+		RefreshToken:       refreshTokenTokenStr,
+		RefreshTokenUuid:   refreshTokenUuid,
+		RefreshTokenExpiry: RefreshTokenExpiry,
 	}, nil
 }
 

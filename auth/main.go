@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gobackpack/examples/auth/auth"
+	"github.com/gobackpack/examples/auth/auth/cache/redis"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -30,7 +32,9 @@ func main() {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	authSvc := &auth.Service{}
+	authSvc := &auth.Service{
+		Cache: initCacheRepo(15),
+	}
 
 	public := router.Group("/api")
 
@@ -67,7 +71,7 @@ func main() {
 	})
 
 	protected := router.Group("api/users")
-	protected.Use(auth.RequiredAuthentication())
+	protected.Use(authSvc.RequiredAuthentication())
 
 	protected.POST("/logout", func(ctx *gin.Context) {
 		// TODO: Provide implementation
@@ -114,4 +118,32 @@ func httpServe(router *gin.Engine, host, port string) {
 	}
 
 	logrus.Warn("server exited")
+}
+
+func initCacheRepo(cacheDb int) auth.Cache {
+	redisConfig := redis.NewConfig()
+
+	if strings.TrimSpace(redisConfig.Host) == "" {
+		redisConfig.Host = ""
+	}
+
+	if strings.TrimSpace(redisConfig.Port) == "" {
+		redisConfig.Port = "6379"
+	}
+
+	if strings.TrimSpace(redisConfig.Password) == "" {
+		redisConfig.Password = ""
+	}
+
+	redisConfig.DB = cacheDb
+
+	redisConn := &redis.Connection{
+		Config: redisConfig,
+	}
+
+	if err := redisConn.Initialize(); err != nil {
+		logrus.Fatal("failed to initialize redis connection: ", err)
+	}
+
+	return redisConn
 }

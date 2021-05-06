@@ -1,13 +1,14 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
 
-func RequiredAuthentication() gin.HandlerFunc {
+func (authSvc *Service) RequiredAuthentication() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := strings.Split(ctx.GetHeader("Authorization"), " ")
 		if len(authHeader) != 2 {
@@ -28,14 +29,25 @@ func RequiredAuthentication() gin.HandlerFunc {
 		}
 
 		userId := claims["sub"]
-		clientId := claims["client_id"]
-		// TODO: check if clientId for userId exists in cache
-		if userId == nil || clientId == nil {
+		accessTokenUuid := claims["uuid"]
+		if userId == nil || accessTokenUuid == nil {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
 
-		logrus.Infof("userId -> %v, clientId -> %v ", userId, clientId)
+		bUserId, err := authSvc.Cache.Get(fmt.Sprint(accessTokenUuid))
+		if err != nil {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		if fmt.Sprint(userId) != string(bUserId) {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		logrus.Infof("claims[userId] -> %v, claims[accessTokenUuid] -> %v, cache[userId] -> %v",
+			userId, accessTokenUuid, string(bUserId))
 
 		ctx.Next()
 	}
