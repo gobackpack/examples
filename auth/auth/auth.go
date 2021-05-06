@@ -102,7 +102,7 @@ func (authSvc *Service) DestroyAuthenticationSession(accessToken string) error {
 
 	accessTokenUuid := claims["uuid"]
 	if accessTokenUuid == nil {
-		return errors.New("invalid access_token")
+		return errors.New("invalid uuid claims from access_token")
 	}
 
 	if err := authSvc.Cache.Delete(fmt.Sprint(accessTokenUuid)); err != nil {
