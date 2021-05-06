@@ -116,6 +116,12 @@ func (authSvc *Service) RefreshToken(refreshToken string) (map[string]string, er
 		return nil, errors.New("invalid user id from refresh_token claims")
 	}
 
+	// make sure refresh token is still active
+	_, err = authSvc.Cache.Get(fmt.Sprint(refreshTokenUuid))
+	if err != nil {
+		return nil, errors.New("refresh_token is no longer active")
+	}
+
 	// TODO: remove access token uuid from cache : low priority
 
 	// delete refresh token uuid
