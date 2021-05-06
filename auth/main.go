@@ -83,7 +83,20 @@ func main() {
 	})
 
 	api.POST("token/refresh", authSvc.RequiredAuthentication(), func(ctx *gin.Context) {
-		// TODO: Provide implementation
+		mapToken := map[string]string{}
+		if err := ctx.ShouldBindJSON(&mapToken); err != nil {
+			ctx.JSON(http.StatusUnprocessableEntity, err.Error())
+			return
+		}
+		refreshToken := mapToken["refresh_token"]
+
+		tokens, err := authSvc.RefreshToken(refreshToken)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("refresh token failed: %v", err))
+			return
+		}
+
+		ctx.JSON(http.StatusOK, tokens)
 	})
 
 	protected := api.Group("users")

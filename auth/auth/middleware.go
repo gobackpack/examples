@@ -15,7 +15,7 @@ func (authSvc *Service) RequiredAuthentication() gin.HandlerFunc {
 			return
 		}
 
-		claims, valid := extractToken(token)
+		claims, valid := extractAccessToken(token)
 		if claims == nil || !valid {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return

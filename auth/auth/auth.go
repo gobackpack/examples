@@ -7,6 +7,7 @@ import (
 	"github.com/gobackpack/examples/auth/auth/cache"
 	"github.com/gobackpack/jwt"
 	"github.com/google/uuid"
+	"strconv"
 	"time"
 )
 
@@ -65,27 +66,9 @@ func (authSvc *Service) Authenticate(email, password string) (map[string]string,
 	}
 
 	if valid := validateCredentials(user, password); valid {
-		tokenDetails, err := createTokens(user)
+		tokens, err := authSvc.createAuth(user)
 		if err != nil {
 			return nil, err
-		}
-
-		if err := authSvc.Cache.Store(
-			&cache.Item{
-				Key:        tokenDetails.AccessTokenUuid,
-				Value:      user.Id,
-				Expiration: tokenDetails.AccessTokenExpiry,
-			}, &cache.Item{
-				Key:        tokenDetails.RefreshTokenUuid,
-				Value:      user.Id,
-				Expiration: tokenDetails.RefreshTokenExpiry,
-			}); err != nil {
-			return nil, err
-		}
-
-		tokens := map[string]string{
-			"access_token":  tokenDetails.AccessToken,
-			"refresh_token": tokenDetails.RefreshToken,
 		}
 
 		return tokens, nil
@@ -95,7 +78,7 @@ func (authSvc *Service) Authenticate(email, password string) (map[string]string,
 }
 
 func (authSvc *Service) DestroyAuthenticationSession(accessToken string) error {
-	claims, valid := extractToken(accessToken)
+	claims, valid := extractAccessToken(accessToken)
 	if !valid {
 		return errors.New("invalid access_token")
 	}
@@ -105,6 +88,8 @@ func (authSvc *Service) DestroyAuthenticationSession(accessToken string) error {
 		return errors.New("invalid uuid claims from access_token")
 	}
 
+	// TODO: remove refresh token uuid from cache : low priority
+
 	if err := authSvc.Cache.Delete(fmt.Sprint(accessTokenUuid)); err != nil {
 		return err
 	}
@@ -112,13 +97,44 @@ func (authSvc *Service) DestroyAuthenticationSession(accessToken string) error {
 	return nil
 }
 
-func (authSvc *Service) RefreshToken(refreshToken string) {
-	// TODO: Checklist
-	// - check if refresh_token is valid
-	// - get user_id client_id from refresh_token
-	// - remove client_id from cache store for user_id
-	// - create new access_token and refresh_token
-	// - store client_id in cache store for user_id
+func (authSvc *Service) RefreshToken(refreshToken string) (map[string]string, error) {
+	// get old refresh token uuid so it can be deleted from cache
+	refreshTokenClaims, valid := extractRefreshToken(refreshToken)
+	if !valid {
+		return nil, errors.New("invalid refresh_token")
+	}
+
+	refreshTokenUuid := refreshTokenClaims["uuid"]
+	userId := refreshTokenClaims["sub"]
+	userEmail := refreshTokenClaims["email"]
+	if refreshTokenUuid == nil || userId == nil || userEmail == nil {
+		return nil, errors.New("invalid refreshTokenClaims from refresh_token")
+	}
+
+	uId, err := strconv.Atoi(fmt.Sprint(userId))
+	if err != nil {
+		return nil, errors.New("invalid user id from refresh_token refreshTokenClaims")
+	}
+
+	// TODO: remove access token uuid from cache : low priority
+
+	// delete refresh token uuid
+	if err := authSvc.Cache.Delete(fmt.Sprint(refreshTokenUuid)); err != nil {
+		return nil, err
+	}
+
+	// generate new access token and refresh token
+	user := &User{
+		Id:    uint(uId),
+		Email: fmt.Sprint(userEmail),
+	}
+
+	tokens, err := authSvc.createAuth(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return tokens, nil
 }
 
 func createTokens(user *User) (*TokenDetails, error) {
@@ -143,9 +159,10 @@ func createTokens(user *User) (*TokenDetails, error) {
 	}
 	refreshTokenUuid := uuid.New().String()
 	refreshTokenTokenStr, err := refreshToken.Generate(map[string]interface{}{
-		"sub":  user.Id,
-		"uuid": refreshTokenUuid,
-		"exp":  jwt.TokenExpiry(RefreshTokenExpiry),
+		"sub":   user.Id,
+		"uuid":  refreshTokenUuid,
+		"email": user.Email,
+		"exp":   jwt.TokenExpiry(RefreshTokenExpiry),
 	})
 	if err != nil {
 		return nil, err
@@ -161,9 +178,17 @@ func createTokens(user *User) (*TokenDetails, error) {
 	}, nil
 }
 
-func extractToken(tokenStr string) (map[string]interface{}, bool) {
+func extractAccessToken(tokenStr string) (map[string]interface{}, bool) {
 	token := &jwt.Token{
 		Secret: AccessTokenSecret,
+	}
+
+	return token.ValidateAndExtract(tokenStr)
+}
+
+func extractRefreshToken(tokenStr string) (map[string]interface{}, bool) {
+	token := &jwt.Token{
+		Secret: RefreshTokenSecret,
 	}
 
 	return token.ValidateAndExtract(tokenStr)
@@ -176,4 +201,31 @@ func validateCredentials(user *User, password string) bool {
 	argon.Plain = password
 
 	return argon.Validate()
+}
+
+func (authSvc *Service) createAuth(user *User) (map[string]string, error) {
+	tokenDetails, err := createTokens(user)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := authSvc.Cache.Store(
+		&cache.Item{
+			Key:        tokenDetails.AccessTokenUuid,
+			Value:      user.Id,
+			Expiration: tokenDetails.AccessTokenExpiry,
+		}, &cache.Item{
+			Key:        tokenDetails.RefreshTokenUuid,
+			Value:      user.Id,
+			Expiration: tokenDetails.RefreshTokenExpiry,
+		}); err != nil {
+		return nil, err
+	}
+
+	tokens := map[string]string{
+		"access_token":  tokenDetails.AccessToken,
+		"refresh_token": tokenDetails.RefreshToken,
+	}
+
+	return tokens, nil
 }
