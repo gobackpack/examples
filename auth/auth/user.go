@@ -19,8 +19,8 @@ var Users = []*User{
 
 type User struct {
 	Id       uint
-	Password string `json:"-"`
 	Email    string
+	Password string `json:"-"`
 }
 
 // TODO: Provide implementation
