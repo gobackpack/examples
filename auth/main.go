@@ -36,16 +36,19 @@ func main() {
 		Cache: initCacheRepo(15),
 	}
 
-	public := router.Group("/api")
+	api := router.Group("/api")
 
-	public.POST("register", func(ctx *gin.Context) {
+	api.POST("register", func(ctx *gin.Context) {
 		var req *RegisterRequest
 		if err := ctx.ShouldBind(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("registration failed: %v", err))
 			return
 		}
 
-		user, err := authSvc.RegisterUser(req.Email, req.Password)
+		user, err := authSvc.RegisterUser(&auth.User{
+			Email:    req.Email,
+			Password: req.Password,
+		})
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("registration failed: %v", err))
 			return
@@ -54,7 +57,7 @@ func main() {
 		ctx.JSON(http.StatusOK, user)
 	})
 
-	public.POST("login", func(ctx *gin.Context) {
+	api.POST("login", func(ctx *gin.Context) {
 		var req *LoginRequest
 		if err := ctx.ShouldBind(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, fmt.Sprintf("login failed: %v", err))
@@ -70,16 +73,21 @@ func main() {
 		ctx.JSON(http.StatusOK, tokens)
 	})
 
-	protected := router.Group("api/users")
+	api.POST("logout", authSvc.RequiredAuthentication(), func(ctx *gin.Context) {
+		accessToken := auth.GetAccessTokenFromRequest(ctx)
+
+		if err := authSvc.DestroyAuthenticationSession(accessToken); err != nil {
+			ctx.JSON(http.StatusBadRequest, "invalid access_token")
+			return
+		}
+	})
+
+	api.POST("token/refresh", authSvc.RequiredAuthentication(), func(ctx *gin.Context) {
+		// TODO: Provide implementation
+	})
+
+	protected := api.Group("users")
 	protected.Use(authSvc.RequiredAuthentication())
-
-	protected.POST("/logout", func(ctx *gin.Context) {
-		// TODO: Provide implementation
-	})
-
-	protected.POST("/token/refresh", func(ctx *gin.Context) {
-		// TODO: Provide implementation
-	})
 
 	protected.GET("", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, auth.Users)

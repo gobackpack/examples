@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gobackpack/crypto"
 	"github.com/gobackpack/examples/auth/auth/cache"
 	"github.com/gobackpack/jwt"
@@ -91,6 +92,24 @@ func (authSvc *Service) Authenticate(email, password string) (map[string]string,
 	}
 
 	return nil, errors.New("invalid credentials")
+}
+
+func (authSvc *Service) DestroyAuthenticationSession(accessToken string) error {
+	claims, valid := extractToken(accessToken)
+	if !valid {
+		return errors.New("invalid access_token")
+	}
+
+	accessTokenUuid := claims["uuid"]
+	if accessTokenUuid == nil {
+		return errors.New("invalid access_token")
+	}
+
+	if err := authSvc.Cache.Delete(fmt.Sprint(accessTokenUuid)); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (authSvc *Service) RefreshToken(refreshToken string) {
