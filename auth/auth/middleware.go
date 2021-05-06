@@ -3,7 +3,6 @@ package auth
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -45,9 +44,6 @@ func (authSvc *Service) RequiredAuthentication() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-
-		logrus.Infof("claims[userId] -> %v, claims[accessTokenUuid] -> %v, cache[userId] -> %v",
-			userId, accessTokenUuid, string(bUserId))
 
 		ctx.Next()
 	}

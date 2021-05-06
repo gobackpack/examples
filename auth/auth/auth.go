@@ -6,7 +6,6 @@ import (
 	"github.com/gobackpack/examples/auth/auth/cache"
 	"github.com/gobackpack/jwt"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"sort"
 	"time"
 )
@@ -68,7 +67,7 @@ func (authSvc *Service) RegisterUser(email, password string) (*User, error) {
 	argon.Plain = password
 
 	if err := argon.Hash(); err != nil {
-		logrus.Fatal("argon failed to hash Plain: ", err)
+		return nil, err
 	}
 
 	user := &User{
@@ -76,7 +75,9 @@ func (authSvc *Service) RegisterUser(email, password string) (*User, error) {
 		Password: argon.Hashed,
 	}
 
-	saveUser(user)
+	if err := saveUser(user); err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }
@@ -195,7 +196,7 @@ func getUser(email string) *User {
 }
 
 // TODO: Provide implementation
-func saveUser(user *User) {
+func saveUser(user *User) error {
 	sort.Slice(Users, func(i, j int) bool {
 		return Users[i].Id > Users[j].Id
 	})
@@ -203,4 +204,6 @@ func saveUser(user *User) {
 	user.Id = Users[0].Id + 1
 
 	Users = append(Users, user)
+
+	return nil
 }
