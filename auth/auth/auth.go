@@ -99,21 +99,21 @@ func (authSvc *Service) DestroyAuthenticationSession(accessToken string) error {
 
 func (authSvc *Service) RefreshToken(refreshToken string) (map[string]string, error) {
 	// get old refresh token uuid so it can be deleted from cache
-	refreshTokenClaims, valid := extractRefreshToken(refreshToken)
+	claims, valid := extractRefreshToken(refreshToken)
 	if !valid {
 		return nil, errors.New("invalid refresh_token")
 	}
 
-	refreshTokenUuid := refreshTokenClaims["uuid"]
-	userId := refreshTokenClaims["sub"]
-	userEmail := refreshTokenClaims["email"]
+	refreshTokenUuid := claims["uuid"]
+	userId := claims["sub"]
+	userEmail := claims["email"]
 	if refreshTokenUuid == nil || userId == nil || userEmail == nil {
-		return nil, errors.New("invalid refreshTokenClaims from refresh_token")
+		return nil, errors.New("invalid claims from refresh_token")
 	}
 
 	uId, err := strconv.Atoi(fmt.Sprint(userId))
 	if err != nil {
-		return nil, errors.New("invalid user id from refresh_token refreshTokenClaims")
+		return nil, errors.New("invalid user id from refresh_token claims")
 	}
 
 	// TODO: remove access token uuid from cache : low priority

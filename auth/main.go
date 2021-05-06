@@ -82,7 +82,7 @@ func main() {
 		}
 	})
 
-	api.POST("token/refresh", authSvc.RequiredAuthentication(), func(ctx *gin.Context) {
+	api.POST("token/refresh", func(ctx *gin.Context) {
 		mapToken := map[string]string{}
 		if err := ctx.ShouldBindJSON(&mapToken); err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, err.Error())
