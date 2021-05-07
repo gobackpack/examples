@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gobackpack/examples/auth/auth"
+	"github.com/gobackpack/examples/auth/auth/cache/inmemory"
 	"github.com/gobackpack/examples/auth/auth/cache/redis"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -33,7 +34,7 @@ func main() {
 	router.Use(gin.Recovery())
 
 	authSvc := &auth.Service{
-		Cache: initCacheRepo(15),
+		Cache: initInMemory("auth_tokens"),
 	}
 
 	api := router.Group("/api")
@@ -167,4 +168,8 @@ func initCacheRepo(cacheDb int) auth.Cache {
 	}
 
 	return redisConn
+}
+
+func initInMemory(tableName string) auth.Cache {
+	return inmemory.New(tableName)
 }
